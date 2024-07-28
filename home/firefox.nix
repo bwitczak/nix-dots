@@ -2,16 +2,10 @@
   pkgs,
   inputs,
   config,
+  # osConfig,
   myUserName,
   ...
-}: let
-  betterfox = pkgs.fetchFromGitHub {
-    owner = "yokoffing";
-    repo = "Betterfox";
-    rev = "126.0";
-    hash = "sha256-W0JUT3y55ro3yU23gynQSIu2/vDMVHX1TfexHj1Hv7Q=";
-  };
-in {
+}: {
   imports = [
     inputs.nur.nixosModules.nur
   ];
@@ -26,16 +20,9 @@ in {
         extensions = with config.nur.repos.rycee.firefox-addons; [
           refined-github
           sponsorblock
-          mal-sync
-          to-google-translate
-          foxyproxy-standard
-          i-dont-care-about-cookies
           localcdn
           privacy-badger
-          search-by-image
-          vimium-c
           ublock-origin
-          config.nur.repos.rycee.firefox-addons."10ten-ja-reader"
         ];
         settings = {
           "intl.accept_languages" = "en-US,en";
@@ -43,7 +30,6 @@ in {
           "browser.aboutConfig.showWarning" = false;
           "browser.display.use_document_fonts" = 0;
           "browser.ctrlTab.sortByRecentlyUsed" = false;
-          "browser.toolbars.bookmarks.visibility" = "never";
           "browser.theme.toolbar-theme" = 0;
           "browser.download.useDownloadDir" = false;
           "privacy.clearOnShutdown.history" = false;
@@ -81,8 +67,6 @@ in {
 
           # PERF
           "gfx.webrender.all" = true;
-          "media.ffmpeg.vaapi.enabled" = true;
-          "media.rdd-ffmpeg.enabled" = true;
           "widget.dmabuf.force-enabled" = true;
           "media.ffvpx.enabled" = false;
           "media.rdd-vpx.enabled" = false;
@@ -128,110 +112,14 @@ in {
           "app.shield.optoutstudies.enabled" = false;
         };
 
-        bookmarks = [
-          {
-            name = "NixOS";
-            toolbar = false;
-            bookmarks = [
-              {
-                name = "Nix Package";
-                keyword = "np";
-                url = "https://search.nixos.org/packages?channel=unstable";
-              }
-              {
-                name = "Nix Options";
-                keyword = "no";
-                url = "https://search.nixos.org/options?channel=unstable";
-              }
-              {
-                name = "NixOS Wiki";
-                keyword = "nw";
-                url = "https://wiki.nixos.org/wiki/Linux_kernel";
-              }
-              {
-                name = "Home-Manager";
-                keyword = "hm";
-                url = "https://nix-community.github.io/home-manager/options.xhtml";
-              }
-            ];
-          }
-          {
-            name = "1337";
-            toolbar = false;
-            bookmarks = [
-              {
-                name = "ProtonMail";
-                keyword = "ma";
-                url = "https://mail.proton.me/";
-              }
-              {
-                name = "Anilist";
-                keyword = "an";
-                url = "https://anilist.co";
-              }
-              {
-                name = "ChatGPT";
-                keyword = "ch";
-                url = "https://chat.openai.com";
-              }
-              {
-                name = "GitHub";
-                keyword = "gh";
-                url = "https://github.com";
-              }
-              {
-                name = "Discord";
-                keyword = "di";
-                url = "https://discord.com/channels/@me";
-              }
-              {
-                name = "Element";
-                keyword = "el";
-                url = "https://app.element.io";
-              }
-              {
-                name = "Nhentai";
-                keyword = "nh";
-                url = "https://nhentai.net";
-              }
-            ];
-          }
-          {
-            name = "waste";
-            toolbar = false;
-            bookmarks = [
-              {
-                name = "Google";
-                keyword = "g";
-                url = "https://google.com";
-              }
-              {
-                name = "Twitter";
-                keyword = "tw";
-                url = "https://twitter.com";
-              }
-              {
-                name = "YouTube";
-                keyword = "yt";
-                url = "https://YouTube.com";
-              }
-              {
-                name = "Whatsapp";
-                keyword = "wh";
-                url = "https://web.whatsapp.com";
-              }
-            ];
-          }
-        ];
-
         search = {
-          default = "Brave";
+          default = "DuckDuckGo";
           force = true;
           engines = {
-            "Brave" = {
-              urls = [{template = "https://search.brave.com/search?q={searchTerms}";}];
-              definedAliases = ["@b"];
-              iconUpdateURL = "https://brave.com/static-assets/images/brave-logo-sans-text.svg";
+            "DuckDuckGo" = {
+              urls = [{template = "https://duckduckgo.com/?t=h_&q={searchTerms}";}];
+              definedAliases = ["@d"];
+              iconUpdateURL = "https://www.vectorlogo.zone/logos/duckduckgo/duckduckgo-icon.svg";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "GitHub" = {
@@ -258,12 +146,7 @@ in {
               icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
               definedAliases = ["@nw"];
             };
-            "Noogle" = {
-              urls = [{template = "https://noogle.dev/q?term={searchTerms}";}];
-              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-              definedAliases = ["@ng"];
-            };
-            "NixVim" = {
+            "NixCommunity" = {
               urls = [{template = "https://nix-community.github.io/nixvim/?search={searchTerms}";}];
               icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
               definedAliases = ["@nv"];
@@ -274,18 +157,9 @@ in {
               urls = [{template = "https://www.youtube.com/results?search_query={searchTerms}";}];
               definedAliases = ["@yt"];
             };
-            "Nhentai" = {
-              updateInterval = 24 * 60 * 60 * 1000;
-              urls = [{template = "https://www.nhentai.net/search?q={searchTerms}";}];
-              definedAliases = ["@nh"];
-            };
             "Google".metaData.alias = "g";
           };
         };
-        extraConfig = ''
-          ${builtins.readFile "${betterfox}/Fastfox.js"}
-          ${builtins.readFile "${betterfox}/Peskyfox.js"}
-        '';
       };
     };
   };

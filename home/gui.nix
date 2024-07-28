@@ -4,50 +4,15 @@
   lib,
   ...
 }: let
-  inherit (config.stylix.base16Scheme) palette;
+  inherit (config.stylix.base16Scheme) slug palette;
 in {
+
   stylix.targets = {
     zathura.enable = false;
+    zellij.enable = false;
   };
 
-  # i18n.inputMethod = {
-  #   enabled = "fcitx5";
-  #   fcitx5.addons = with pkgs; [fcitx5-mozc fcitx5-gtk fcitx5-fluent];
-  # };
-
   programs = {
-    neovide = {
-      enable = true;
-      settings = {
-        srgb = true;
-        font = {
-          normal = [config.stylix.fonts.monospace.name];
-          size = config.stylix.fonts.sizes.terminal;
-        };
-      };
-    };
-
-    emacs = {
-      enable = true;
-      package = pkgs.emacs29-pgtk;
-      extraPackages = epkgs: [epkgs.vterm];
-    };
-
-    satty = {
-      enable = true;
-      settings = {
-        general = {
-          early-exit = true;
-          initial-tool = "brush";
-          copy-command = "wl-copy";
-          annotation-size-factor = 1;
-          save-after-copy = false;
-          primary-highlighter = "block";
-        };
-        font.family = config.stylix.fonts.sansSerif.name;
-      };
-    };
-
     zathura = {
       enable = true;
       options = with config.lib.stylix.colors.withHashtag; {
@@ -77,38 +42,99 @@ in {
         recolor-lightcolor = "rgba(256,256,256,0)";
       };
       mappings = {
-        "h" = "feedkeys '<C-Left>'";
-        "j" = "feedkeys '<C-Down>'";
-        "k" = "feedkeys '<C-Up>'";
-        "l" = "feedkeys '<C-Right>'";
-        "i" = "recolor";
-        "f" = "toggle_fullscreen";
-        "[fullscreen] i" = "recolor";
-        "[fullscreen] f" = "toggle_fullscreen";
+      "h" = "feedkeys '<C-Left>'";
+      "j" = "feedkeys '<C-Down>'";
+      "k" = "feedkeys '<C-Up>'";
+      "l" = "feedkeys '<C-Right>'";
+      "i" = "recolor";
+      "f" = "toggle_fullscreen";
+      "[fullscreen] i" = "recolor";
+      "[fullscreen] f" = "toggle_fullscreen";
       };
     };
 
-    foot = {
+    alacritty = {
       enable = true;
       settings = {
-        main = {pad = "5x5";};
-        mouse = {hide-when-typing = "no";};
-        key-bindings = {
-          scrollback-up-page = "Control+u";
-          scrollback-down-page = "Control+d";
-          scrollback-up-line = "Mod1+k";
-          pipe-command-output = "[wl-copy] Control+Shift+g";
-          pipe-scrollback = "[sh -c 'cat > /tmp/comsole'] Control+Shift+f";
-          scrollback-down-line = "Mod1+j";
+        # Environment
+        env = {
+          TERM = "xterm-256color";
         };
-        cursor = {
-          style = "beam";
-          color = "${palette.base01} ${palette.base05}";
+        # Colors
+        colors = {
+          primary = {
+            background = lib.mkDefault "0x1E1E2E";
+            foreground = lib.mkDefault "0xd6d6d6";
+          };
+          cursor = {
+            text = lib.mkDefault "0xCDD6F4";
+            cursor = lib.mkDefault "0xD9D9D9";
+          };
+          bright = {
+            black = lib.mkDefault "0x5C6370";
+            red = lib.mkDefault "0xE86671";
+            green = lib.mkDefault "0x98C379";
+            yellow = lib.mkDefault "0xE5C07B";
+            blue = lib.mkDefault "0x61AFEF";
+            magenta = lib.mkDefault "0xC678DD";
+            cyan = lib.mkDefault "0x54AFBC";
+            white = lib.mkDefault "0xf7f7f7";
+          };
+          normal = {
+            black = lib.mkDefault "0x181A1F";
+            red = lib.mkDefault "0xE86671";
+            green = lib.mkDefault "0x98C379";
+            yellow = lib.mkDefault "0xE5C07B";
+            blue = lib.mkDefault "0x61AFEF";
+            magenta = lib.mkDefault "0xC678DD";
+            cyan = lib.mkDefault "0x54AFBC";
+            white = lib.mkDefault "0xABB2BF";
+          };
+          dim = {
+            black = lib.mkDefault "0x181A1F";
+            red = lib.mkDefault "0x74423f";
+            green = lib.mkDefault "0x98C379";
+            yellow = lib.mkDefault "0xE5C07B";
+            blue = lib.mkDefault "0x61AFEF";
+            magenta = lib.mkDefault "0x6e4962";
+            cyan = lib.mkDefault "0x5c8482";
+            white = lib.mkDefault "0x828282";
+          };
+        };
+
+        # Font
+        font = {
+          size = lib.mkDefault 13;
+        };
+
+        # Window
+        window = {
+          decorations = "full";
+          padding = {
+            x = 12;
+            y = 12;
+          };
+        };
+
+        # Scrolling
+        scrolling = {
+          history = 1000;
+          multiplier = 3;
+        };
+
+        # Mouse
+        mouse = {
+          hide_when_typing = false;
+        };
+
+        # Shell
+        shell = {
+          program = "${pkgs.zsh}/bin/zsh";
+          args = ["-l" "-c" "zellij"];
         };
       };
     };
   };
-
   services = {
     blueman-applet.enable = true;
     hypridle = {
@@ -117,10 +143,10 @@ in {
         general = {
           ignore_dbus_inhibit = false;
         };
-        listener = {
-          timeout = 300;
-          on-timeout = "${lib.getExe pkgs.dvd-zig}";
-        };
+        # listener = {
+        #   timeout = 300;
+        #   on-timeout = "${lib.getExe pkgs.dvd-zig}";
+        # };
       };
     };
     mako = {

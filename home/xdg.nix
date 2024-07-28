@@ -6,13 +6,14 @@
       defaultApplications = let
         browser = ["firefox.desktop"];
         fileManager = ["org.gnome.Nautilus.desktop"];
-        editor = ["neovide.desktop"];
+        editor = ["dev.zed.Zed.desktop"];
         player = ["mpv.desktop"];
         viewer = ["nsxiv.desktop"];
         reader = ["org.pwmt.zathura.desktop"];
       in {
         "application/pdf" = reader;
         "application/epub" = reader;
+        "application/epub+zip" = reader;
 
         "text/html" = browser;
         "text/xml" = browser;
@@ -38,7 +39,6 @@
         "x-scheme-handler/https" = browser;
 
         "inode/directory" = fileManager;
-        "application/zip" = fileManager;
 
         "audio/*" = player;
         "video/*" = player;
@@ -49,16 +49,17 @@
         "image/png" = viewer;
         "image/webp" = viewer;
       };
+      associations.added = config.xdg.mimeApps.defaultApplications;
     };
     userDirs = {
       enable = true;
       createDirectories = true;
-      download = "${config.home.homeDirectory}/dl";
-      documents = "${config.home.homeDirectory}/dl/dox";
-      desktop = "${config.home.homeDirectory}/dl/desk";
-      videos = "${config.home.homeDirectory}/dl/vid";
-      pictures = "${config.home.homeDirectory}/pix";
-      music = "${config.home.homeDirectory}/dl/music";
+      download = "${config.home.homeDirectory}/Download";
+      documents = "${config.home.homeDirectory}/dl/Documents";
+      desktop = "${config.home.homeDirectory}/dl/Desktop";
+      videos = "${config.home.homeDirectory}/dl/Videos";
+      pictures = "${config.home.homeDirectory}/Pictures";
+      music = "${config.home.homeDirectory}/Music";
       templates = "${config.home.homeDirectory}/.local/share/templates";
       publicShare = "${config.home.homeDirectory}/.local/share/public";
     };

@@ -32,16 +32,16 @@
 assert lib.assertOneOf "withAudioBackend" withAudioBackend ["" "alsa" "pulseaudio" "rodio" "portaudio" "jackaudio" "rodiojack" "sdl" "gstreamer"];
   rustPlatform.buildRustPackage rec {
     pname = "spotify-player";
-    version = "0.19.1";
+    version = "unstable-2024-06-19";
 
     src = fetchFromGitHub {
       owner = "aome510";
-      repo = pname;
+      repo = "${pname}";
       rev = "58a5ace777293ed04fb0da44075a27d777822501";
       hash = "sha256-2BTnCjM9WTn9bJJ0bWIdwGrrRCdFBpSuCBb32qL71qc=";
     };
 
-    cargoHash = "sha256-7vximGisIIXBrwHXSWQjO08OraaweG7ZT6v+gVdYGVc=";
+    cargoHash = "sha256-LYmsT/PmME2VpqanuQMzbYhnE7HNQgMvYN7hJRBUsNU=";
 
     nativeBuildInputs =
       [
@@ -100,6 +100,6 @@ assert lib.assertOneOf "withAudioBackend" withAudioBackend ["" "alsa" "pulseaudi
       changelog = "https://github.com/aome510/spotify-player/releases/tag/v${version}";
       mainProgram = "spotify_player";
       license = lib.licenses.mit;
-      maintainers = with lib.maintainers; [_71zenith];
+      maintainers = with lib.maintainers; [dit7ya xyven1];
     };
   }

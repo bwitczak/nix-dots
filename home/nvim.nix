@@ -13,8 +13,8 @@ in {
     nixvim.enable = false;
     vim.enable = false;
   };
-
   programs = {
+
     nixvim = {
       enable = true;
       luaLoader.enable = true;
@@ -127,6 +127,20 @@ in {
         showbreak = "⤷ ";
       };
       extraPlugins = with plugins // pkgs.vimPlugins; [satellite-nvim lualine-so-fancy buffer-manager];
+      autoCmd = [
+        {
+          pattern = ["norg"];
+          event = ["FileType"];
+          callback = {
+            __raw = ''
+              function()
+              vim.opt_local.wrap = true
+              vim.opt_local.linebreak = true
+              end
+            '';
+          };
+        }
+      ];
       plugins = {
         nix.enable = false;
         hop.enable = true;
@@ -145,6 +159,42 @@ in {
           '';
         };
         flash.enable = true;
+        neorg = {
+          enable = true;
+          modules = {
+            "core.defaults" = {
+              __empty = null;
+            };
+            "core.concealer" = {
+              __empty = null;
+            };
+            "core.keybinds" = {
+              config = {
+                hook = {
+                  __raw = ''
+                    function(keybinds)
+                    keybinds.remap_event("norg", "i", "<C-CR>", "core.itero.next-iteration")
+                    end,
+                  '';
+                };
+              };
+            };
+            "core.dirman" = {
+              config = {
+                workspaces = {
+                  notes = "~/notes";
+                };
+                default_workspace = "notes";
+              };
+            };
+            "core.completion" = {
+              config = {
+                engine = "nvim-cmp";
+                name = "Neorg";
+              };
+            };
+          };
+        };
         dressing.enable = true;
         lsp = {
           enable = true;
@@ -337,15 +387,12 @@ in {
         };
         treesitter = {
           enable = true;
-          settings = {
-            highlight.disable = ["zig"];
-            incremental_selection = {
-              enable = true;
-              keymaps = {
-                init_selection = "<C-SPACE>";
-                node_incremental = "<C-SPACE>";
-                node_decremental = "<BS>";
-              };
+          incrementalSelection = {
+            enable = true;
+            keymaps = {
+              initSelection = "<C-SPACE>";
+              nodeIncremental = "<C-SPACE>";
+              nodeDecremental = "<BS>";
             };
           };
         };
@@ -511,6 +558,10 @@ in {
               {
                 name = "path";
                 keyword_length = 4;
+              }
+              {
+                name = "neorg";
+                keyword_length = 1;
               }
               {
                 name = "buffer";
@@ -1098,6 +1149,36 @@ in {
           mode = "n";
           action = "<CMD>HopWord<CR>";
           options.desc = "Jump to [w]ord";
+        }
+        {
+          key = "<leader>ni";
+          mode = "n";
+          action = "<CMD>Neorg index<CR>";
+          options.desc = "Open Neorg index";
+        }
+        {
+          key = "<leader>nu";
+          mode = "n";
+          action = "<CMD>Neorg update-metadata<CR>";
+          options.desc = "Update Metadata";
+        }
+        {
+          key = "<leader>na";
+          mode = "n";
+          action = "<CMD>Neorg tangle current-file<CR>";
+          options.desc = "Tangle current file";
+        }
+        {
+          key = "<leader>nt";
+          mode = "n";
+          action = "<CMD>Neorg toc qflist<CR>";
+          options.desc = "Show TOC";
+        }
+        {
+          key = "<leader>nm";
+          mode = "n";
+          action = "<CMD>Neorg inject-metadata<CR>";
+          options.desc = "Insert Metadata";
         }
         {
           key = "<leader>v";

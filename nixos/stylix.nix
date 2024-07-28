@@ -10,19 +10,19 @@
     base16Scheme = inputs.nix-colors.colorSchemes.oxocarbon-dark;
     fonts = rec {
       serif = {
-        package = pkgs.my-fonts;
-        name = "Kollektif";
+      package = pkgs.nerdfonts.override {fonts = ["CascadiaMono"];};
+        name = "CaskaydiaMono Nerd Font";
       };
       sansSerif = {
-        package = pkgs.my-fonts;
+      package = pkgs.my-fonts;
         inherit (serif) name;
       };
       monospace = {
-        package = pkgs.my-fonts;
-        name = "Zed Mono";
+        package = pkgs.nerdfonts.override {fonts = ["Recursive"];};
+        name = "RecMonoLinear Nerd Font Mono";
       };
       emoji = {
-        package = pkgs.noto-fonts-emoji;
+      package = pkgs.noto-fonts-emoji;
         name = "Noto Color Emoji";
       };
       sizes = {
@@ -45,13 +45,13 @@
   };
   fonts = {
     fontconfig.defaultFonts = rec {
-      sansSerif = ["Kollektif" "Mamelon"];
+      sansSerif = ["CaskaydiaMono Nerd Font"];
       serif = sansSerif;
       emoji = ["Noto Color Emoji"];
     };
     packages = with pkgs; [
       my-fonts
-      (nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
+      (nerdfonts.override {fonts = ["CascadiaMono" "Recursive" "NerdFontsSymbolsOnly"];})
     ];
   };
 }

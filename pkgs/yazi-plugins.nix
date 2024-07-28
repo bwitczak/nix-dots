@@ -21,7 +21,7 @@ stdenv.mkDerivation {
   meta = with lib; {
     description = "Place code snippets from docs into this monorepo, so that users can update more easily via package manager";
     homepage = "https://github.com/yazi-rs/plugins";
-    maintainers = with maintainers; [_71zenith];
+    maintainers = with maintainers; [zen];
     mainProgram = "yazi-plugins";
     platforms = platforms.all;
   };

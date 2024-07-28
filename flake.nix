@@ -6,16 +6,19 @@
     flake-utils.url = "github:numtide/flake-utils";
     nur.url = "github:nix-community/NUR";
     nix-colors.url = "github:misterio77/nix-colors";
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     stylix = {
       url = "github:danth/stylix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         home-manager.follows = "home-manager";
       };
+    };
+    hyprland = {
+      url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
+    };
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nixvim = {
       url = "github:nix-community/nixvim";
@@ -24,40 +27,29 @@
         home-manager.follows = "home-manager";
       };
     };
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    prismlauncher = {
-      url = "github:Diegiwg/PrismLauncher-Cracked?ref=v8.4.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    flake-programs-sqlite = {
-      url = "github:wamserma/flake-programs-sqlite";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        utils.follows = "flake-utils";
-      };
-    };
-    nix-gaming = {
-      url = "github:fufexan/nix-gaming";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # sops-nix = {
+    #   url = "github:Mic92/sops-nix";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+    # prismlauncher = {
+    #   url = "github:Diegiwg/PrismLauncher-Cracked?ref=v8.4.1";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
     ### MY FLAKES ###
-    lem = {
-      url = "github:71zenith/lem-flake";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
-    dvd-zig = {
-      url = "github:71zenith/dvd-zig";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
+    # lem = {
+    #   url = "github:71zenith/lem-flake";
+    #   inputs = {
+    #     nixpkgs.follows = "nixpkgs";
+    #     flake-utils.follows = "flake-utils";
+    #   };
+    # };
+    # dvd-zig = {
+    #   url = "github:71zenith/dvd-zig";
+    #   inputs = {
+    #     nixpkgs.follows = "nixpkgs";
+    #     flake-utils.follows = "flake-utils";
+    #   };
+    # };
     my-assets = {
       url = "github:71zenith/assets";
       inputs = {
@@ -65,13 +57,13 @@
         flake-utils.follows = "flake-utils";
       };
     };
-    scraperwolf = {
-      url = "github:71zenith/scraperwolf";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
+    # scraperwolf = {
+    #   url = "github:71zenith/scraperwolf";
+    #   inputs = {
+    #     nixpkgs.follows = "nixpkgs";
+    #     flake-utils.follows = "flake-utils";
+    #   };
+    # };
   };
   outputs = {
     self,
@@ -79,18 +71,16 @@
     ...
   } @ inputs: let
     ### NOTE: DECLARE USER ###
-    pcName = "izanagi";
-    myUserName = "zen";
-    myName = "Mori Zen";
-    matrixId = "@mori.zen:matrix.org";
-    mailId = "71zenith@proton.me";
+    pcName = "theonionocean";
+    myUserName = "bwitczak";
+    mail = "blaise.witczak@gmail.com";
 
     system = "x86_64-linux";
     pkgs = import nixpkgs {inherit system;};
 
     # HACK: nur prevent infinite recursion
     nurNoPkgs = import inputs.nur {
-      nurpkgs = import nixpkgs {inherit system;};
+      nurpkgs = import nixpkgs {system = "x86_64-linux";};
     };
 
     caches = {
@@ -98,39 +88,65 @@
         builders-use-substitutes = true;
         substituters = [
           "https://cache.nixos.org"
+          "https://hyprland.cachix.org"
           "https://nix-community.cachix.org"
+          "https://nixpkgs-wayland.cachix.org"
           "https://cache.garnix.io"
-          "https://nix-gaming.cachix.org"
         ];
         trusted-public-keys = [
           "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+          "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
           "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-          "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
         ];
       };
     };
     overlays = {
       nixpkgs.overlays = with inputs; [
-        prismlauncher.overlays.default
-        dvd-zig.overlays.default
+        # prismlauncher.overlays.default
+        hyprland.overlays.default
+        # dvd-zig.overlays.default
         my-assets.overlays.default
-        lem.overlays.default
-        scraperwolf.overlays.default
         (import ./pkgs)
+        # lem.overlays.default
+        # scraperwolf.overlays.default
       ];
     };
   in {
-    devShell.${system} = pkgs.mkShell {
-      packages = with pkgs; [lolcat alejandra nil];
-      shellHook = ''
-        printf "\e[3m\e[1m%s\em\n" "1337 h4x0ring..." | lolcat
-      '';
+    devShells.${system} = {
+      default = pkgs.mkShell {
+        packages = with pkgs; [lazygit alejandra nil];
+        shellHook = ''
+          printf "\e[3m\e[1m%s\em\n" "Nix development environment is ready."
+        '';
+      };
+
+      node = pkgs.mkShell {
+        packages = with pkgs; [lazygit nodejs_20 pnpm];
+        shellHook = ''
+          printf "\e[3m\e[1m%s\em\n" "NodeJS development environment is ready."
+        '';
+      };
+
+      rust = pkgs.mkShell {
+        packages = with pkgs; [lazygit rustc cargo rustfmt clippy];
+        shellHook = ''
+          printf "\e[3m\e[1m%s\em\n" "Rust development environment is ready."
+        '';
+      };
+
+      csharp = pkgs.mkShell {
+        packages = with pkgs; [lazygit dotnet-sdk_8];
+        shellHook = ''
+          printf "\e[3m\e[1m%s\em\n" "C# development environment is ready."
+        '';
+      };
     };
+
     nixosConfigurations.${pcName} = nixpkgs.lib.nixosSystem {
       specialArgs = {
-        inherit inputs nurNoPkgs;
-        inherit pcName myUserName myName matrixId mailId;
+      inherit inputs nurNoPkgs;
+      inherit pcName myUserName mail;
       };
       modules = with inputs; [
         caches
@@ -138,8 +154,8 @@
         stylix.nixosModules.stylix
         nur.nixosModules.nur
         home-manager.nixosModules.home-manager
-        sops-nix.nixosModules.sops
-        flake-programs-sqlite.nixosModules.programs-sqlite
+        # sops-nix.nixosModules.sops
+        # ./hosts/${pcName}/nixos/config.nix
         (import ./nixos/config.nix)
       ];
     };

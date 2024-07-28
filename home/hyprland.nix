@@ -2,29 +2,33 @@
   pkgs,
   config,
   lib,
-  osConfig,
   ...
 }: let
   rgb = color: "rgb(${color})";
   inherit (config.stylix.base16Scheme) palette;
   scripts = import ../pkgs/scripts.nix {inherit pkgs lib;};
 in {
+  imports = [
+    ./swayidle.nix
+    ./swaylock.nix
+  ];
   # FIXME: do not anger me; fuck hyprpaper
   services.hyprpaper.enable = lib.mkForce false;
   stylix.targets.hyprpaper.enable = lib.mkForce false;
+
+  # start swayidle as part of hyprland, not sway
+  systemd.user.services.swayidle.Install.WantedBy = lib.mkForce ["hyprland-session.target"];
+
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = true;
     settings = {
       env = [
-        "LIBVA_DRIVER_NAME,nvidia"
+        # "LIBVA_DRIVER_NAME,nvidia"
         "XDG_SESSION_TYPE,wayland"
         "GBM_BACKEND,nvidia-drm"
-        "__GLX_VENDOR_LIBRARY_NAME,nvidia"
-        "VDPAU_DRIVER,nvidia"
         "WLR_NO_HARDWARE_CURSORS,1"
         "NIXOS_OZONE_WL,1"
-        "GRIMBLAST_EDITOR,satty --filename"
         "ELECTRON_OZONE_PLATFORM_HINT,auto"
         "MOZ_ENABLE_WAYLAND,1"
         "NVD_BACKEND,direct"
@@ -43,15 +47,13 @@ in {
       "$mod2" = "SUPERSHIFT";
       "$mod3" = "SUPERCONTROL";
       "$mod4" = "ALT";
-      "$setwall" = "swww img $(fd . ${pkgs.my-walls}/share/wallpapers/ | sort -R | head -1) -f Mitchell -t any --transition-fps 75 --transition-duration 2";
+      "$setwall" = "swww img $(fd . ${pkgs.my-walls}/share/wallpapers/ | sort -R | head -1) -f Mitchell -t any --transition-fps 60 --transition-duration 2";
       monitor = [
         # FIXME: annoying ahh kernel bug
-        "Unknown-1,disabled"
-        "HDMI-A-1,1920x1080@75.00,0x0,1"
+        "eDP-1,1920x1080@59.93400,0x0,1"
       ];
       exec-once = [
         "pgrep waybar || waybar &"
-        "foot --server &"
         "swww-daemon --format xrgb"
         "wl-paste --type text --watch cliphist store &"
         "wl-paste --type image --watch cliphist store &"
@@ -73,26 +75,18 @@ in {
         "noanim, selection"
       ];
       windowrulev2 = [
-        "stayfocused, title:^()$,class:^(steam)$"
-        "minsize 1 1, title:^()$,class:^(steam)$"
-        "float, class:io.github.Qalculate.qalculate-qt"
-        "size 70% 55%, class:io.github.Qalculate.qalculate-qt"
-        "center, class:io.github.Qalculate.qalculate-qt"
-        "float, title:quick"
-        "size 80% 75%, title:quick"
-        "center, title:quick"
-        "size 85% 80%, class:com.gabm.satty"
-        "center, class:com.gabm.satty"
-        "center, class:pop"
-        "tile, class:Nsxiv,xwayland:1"
-        "tile, title:Neovide,class:neovide"
-      ];
-      workspace = [
-        "special:music, on-created-empty:footclient spotify_player"
-        "special:matrix, on-created-empty:footclient iamb"
+      "float, class:io.github.Qalculate.qalculate-qt"
+      "size 70% 55%, class:io.github.Qalculate.qalculate-qt"
+      "center, class:io.github.Qalculate.qalculate-qt"
+      "float, title:quick"
+      "size 80% 75%, title:quick"
+      "center, title:quick"
+      "tile, class:Nsxiv,xwayland:1"
+      "tile, title:Neovide,class:neovide"
       ];
       input = {
-        kb_options = osConfig.services.xserver.xkb.options;
+        kb_layout = "pl, us";
+        kb_options = "caps:escape,altwin:swap_lalt_lwin";
         repeat_rate = 60;
         repeat_delay = 250;
         force_no_accel = 1;
@@ -110,7 +104,6 @@ in {
         new_window_takes_over_fullscreen = 1;
         disable_splash_rendering = true;
         disable_hyprland_logo = true;
-        swallow_regex = "^(foot).*$";
       };
       decoration = {
         rounding = 12;
@@ -166,12 +159,9 @@ in {
         ",Print, exec,grimblast --notify copy area"
         ",XF86AudioRaiseVolume, exec, pulsemixer --change-volume +5"
         ",XF86AudioLowerVolume, exec, pulsemixer --change-volume -5"
+        ",XF86MonBrightnessUp, exec, brightnessctl -c backlight set 5%+"
+        ",XF86MonBrightnessDown, exec, brightnessctl -c backlight set 5%-"
         ",XF86AudioMute, exec, pulsemixer --toggle-mute"
-        ",XF86AudioNext, exec, playerctl next --player=spotify_player"
-        ",XF86AudioPrev, exec, playerctl previous --player=spotify_player"
-        ",XF86AudioPlay, exec, playerctl play-pause"
-        "$mod1, d, exec, playerctl next --player=spotify_player"
-        "$mod1, a, exec, playerctl previous --player=spotify_player"
         "$mod1, s, exec, playerctl play-pause"
         "$mod1, n, exec, playerctld shift up"
         "$mod1, m, exec, playerctld shift down"
@@ -195,38 +185,22 @@ in {
       bind =
         [
           "$mod1, Print, exec, grimblast --notify copy screen"
-          "$mod4, Print, exec, grimblast --notify edit area"
-
           "$mod2, f, exec, firefox"
-          "$mod2, v, exec, neovide"
-          "$mod2, e, exec, emacs"
-          "$mod2, i, exec, $setwall"
-          "$mod2, o, exec, rofi -theme preview -show filebrowser -selected-row 1"
-
-          "$mod1, c, exec, rofi -show calc -modi calc -no-show-math -no-sort -calc-command 'echo '{result}' | wl-copy'"
-          "$mod1, e, exec, mpv ytdl://ytsearch:\"$(playerctl metadata --format '{{artist}} {{title}} {{album}}')\""
+          "$mod1, return, exec, alacritty"
           "$mod1, r, exec, pkill qalculate-qt || qalculate-qt"
-          "$mod1, z, exec, pkill pulsemixer || footclient -T quick pulsemixer"
-
-          "$mod1, return, exec, footclient"
-          "$mod1, comma, exec, pkill btop || footclient -T quick btop"
-          "$mod1, period, exec, ${lib.getExe pkgs.hdrop} -b -f -g 230 -w 85 -h 65 -c pop 'footclient -a pop'"
-
-          "$mod1, b, exec, ${scripts.disSend}"
-          "$mod1, o, exec, ${scripts.wlOcr}"
-          "$mod1, p, exec, ${scripts.openMedia}"
-          "$mod1, u, exec, ${scripts.rofiGuard}"
-          "$mod1, w, exec, ${scripts.epubOpen}"
-          "$mod1, i, exec, ${scripts.transLiner}"
-          "$mod1, y, exec, ${scripts.copyTwit}"
+          "$mod1, comma, exec, pkill btop || btop"
+          "$mod2, v, exec, neovide"
+          "$mod2, i, exec, $setwall"
+          "$mod1, c, exec, rofi -show calc -modi calc -no-show-math -no-sort -calc-command 'echo '{result}' | wl-copy'"
+          "$mod1, g, exec, pkill glava || glava"
+          "$mod2, o, exec, rofi -theme preview -show filebrowser -selected-row 1"
           "$mod1, v, exec, ${scripts.clipShow}"
-          "$mod1, g, exec, ${scripts.glavaShow}"
 
           "$mod1, q, killactive,"
           "$mod1, x, togglesplit,"
           "$mod1, t, fullscreen,"
-          "$mod1, f, fakefullscreen"
           "$mod2, t, fullscreen,1"
+          "$mod1, f, fakefullscreen"
           "$mod2, q, exit,"
           "$mod2, r, exec, hyprctl reload"
           "$mod2, s, togglefloating,"
@@ -242,12 +216,12 @@ in {
           "$mod2, Tab, cyclenext,prev"
           "$mod3, n, swapnext"
           "$mod3, p, swapnext,prev"
-          "$mod1, slash, workspace, previous"
+          "$mod2, L, exec, loginctl lock-session && swaylock -fF"
 
-          "$mod1, 9, togglespecialworkspace, music"
-          "$mod1, 0, togglespecialworkspace, matrix"
           "$mod2, 9, movetoworkspacesilent, special:music"
           "$mod2, 0, movetoworkspacesilent, special:matrix"
+          "$mod1, 9, togglespecialworkspace, music"
+          "$mod1, 0, togglespecialworkspace, matrix"
           "$mod2, return, togglespecialworkspace, music"
           "$mod3, return, togglespecialworkspace, matrix"
         ]

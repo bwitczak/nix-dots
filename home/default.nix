@@ -10,41 +10,22 @@
 in {
   stylix.targets.kde.enable = false;
   imports = [
-    ./modules
+  ./modules
     ./cli.nix
     ./gui.nix
     ./mpv.nix
     ./zsh.nix
     ./waybar.nix
-    ./nvim.nix
     ./git.nix
     ./rofi.nix
     ./xdg.nix
     ./firefox.nix
-    ./spotify-player.nix
     ./hyprland.nix
   ];
 
-  # NOTE: virt-manager fix
-  dconf = {
-    enable = true;
-    settings = {
-      "org/virt-manager/virt-manager/connections" = {
-        autoconnect = ["qemu:///system"];
-        uris = ["qemu:///system"];
-      };
-    };
-  };
-
   home = {
     username = myUserName;
-
-    stateVersion = "24.11";
-
-    packages = [
-      scripts._4khd
-    ];
-
+    stateVersion = "24.05";
     sessionVariables = {
       MANPAGER = "less -R --use-color -Dd+m -Du+b -DP+g";
       MANROFFOPT = "-P -c";
@@ -71,11 +52,12 @@ in {
       package = pkgs.zafiro-icons;
     };
   };
+
   xdg.portal = {
     enable = true;
+    extraPortals = with pkgs; [xdg-desktop-portal-gtk xdg-desktop-portal-hyprland];
     config.common.default = ["hyprland" "gtk"];
     xdgOpenUsePortal = true;
-    extraPortals = with pkgs; [xdg-desktop-portal-hyprland xdg-desktop-portal-gtk];
   };
 
   xresources.properties = with config.lib.stylix.colors.withHashtag; {

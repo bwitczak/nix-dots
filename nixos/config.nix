@@ -2,13 +2,11 @@
   pkgs,
   config,
   inputs,
-  lib,
   pcName,
   myUserName,
-  myName,
-  matrixId,
-  mailId,
+  mail,
   nurNoPkgs,
+  lib,
   ...
 }: let
   home = user: "/home/${user}";
@@ -18,46 +16,18 @@ in {
     ./hardware.nix
     ./packages.nix
     ./stylix.nix
-    inputs.nix-gaming.nixosModules.platformOptimizations
   ];
 
-  sops = {
-    defaultSopsFile = ../secrets/secrets.yaml;
-    defaultSopsFormat = "yaml";
-    age.sshKeyPaths = ["${home myUserName}/.ssh/id_ed25519"];
-    secrets = {
-      root_pass.neededForUsers = true;
-      user_pass.neededForUsers = true;
-      spot_username = {};
-      spot_auth_data = {};
-      vpn_private_jp = {};
-      vpn_private_us = {};
-      vpn_private_nl = {};
-      discord_token = {owner = myUserName;};
-    };
-    # TODO: move to home-manager after #529(https://github.com/Mic92/sops-nix/pull/529) is merged
-    templates."credentials.json" = {
-      owner = myUserName;
-      content = builtins.toJSON {
-        username = config.sops.placeholder.spot_username;
-        auth_type = 1;
-        auth_data = config.sops.placeholder.spot_auth_data;
-      };
-      path = "${home myUserName}/.cache/spotify-player/credentials.json";
-    };
-  };
-
+  config = {
   nix = {
     settings = {
       auto-optimise-store = true;
-      experimental-features = ["nix-command" "flakes" "repl-flake"];
+      experimental-features = ["nix-command" "flakes"];
       warn-dirty = false;
       trusted-users = ["root" "@wheel"];
       log-lines = 30;
       http-connections = 50;
     };
-    nixPath = ["nixpkgs=${inputs.nixpkgs}"];
-    registry.nixpkgs.flake = inputs.nixpkgs;
     gc = {
       automatic = true;
       dates = "weekly";
@@ -69,133 +39,93 @@ in {
     };
   };
 
-  boot = {
-    loader = {
-      systemd-boot = {
-        enable = true;
-        consoleMode = "max";
-      };
-      efi.canTouchEfiVariables = true;
-    };
-    kernelPackages = pkgs.linuxPackages_xanmod;
-  };
-
-  documentation = {
-    enable = true;
-    dev.enable = true;
-  };
-
-  services = {
-    mysql = {
-      enable = false;
-      package = pkgs.mariadb-embedded;
-      user = myUserName;
-    };
-
-    greetd = {
-      enable = true;
-      settings = rec {
-        initial_session = {
-          command = "${lib.getExe pkgs.hyprland}";
-          user = myUserName;
+    boot = {
+      loader = {
+        systemd-boot = {
+          enable = true;
+          consoleMode = "max";
         };
-        default_session = initial_session;
+        efi.canTouchEfiVariables = true;
+      };
+      kernelPackages = pkgs.linuxPackages_zen;
+    };
+
+    documentation = {
+      enable = true;
+      dev.enable = true;
+    };
+
+    services = {
+      greetd = {
+        enable = true;
+        settings = rec {
+          initial_session = {
+            command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
+            user = myUserName;
+          };
+          default_session = initial_session;
+        };
+      };
+
+      # NOTE: calibre drive detection
+      udisks2.enable = true;
+
+
+      # NOTE: nautilus trash support
+      gvfs.enable = true;
+      # xserver.videoDrivers = ["nvidia"];
+    };
+
+    time.timeZone = "Europe/Warsaw";
+    # Select internationalisation properties.
+    i18n.defaultLocale = "en_US.UTF-8";
+
+    i18n.extraLocaleSettings = {
+      LC_ADDRESS = "pl_PL.UTF-8";
+      LC_IDENTIFICATION = "pl_PL.UTF-8";
+      LC_MEASUREMENT = "pl_PL.UTF-8";
+      LC_MONETARY = "pl_PL.UTF-8";
+      LC_NAME = "pl_PL.UTF-8";
+      LC_NUMERIC = "pl_PL.UTF-8";
+      LC_PAPER = "pl_PL.UTF-8";
+      LC_TELEPHONE = "pl_PL.UTF-8";
+      LC_TIME = "pl_PL.UTF-8";
+    };
+
+    # NOTE: for systemd completion
+    # environment.pathsToLink = ["/share/zsh"];
+    programs = {
+      zsh.enable = true;
+      hyprland.enable = true;
+      nh = {
+        enable = true;
+        flake = "${home myUserName}/nix";
+      };
+
+      nix-ld.enable = true;
+    };
+
+    users.users = {
+      ${myUserName} = {
+        isNormalUser = true;
+        shell = pkgs.zsh;
+        extraGroups = ["wheel" "input"];
       };
     };
 
-    # NOTE: calibre drive detection
-    udisks2.enable = true;
-
-    # NOTE: nautilus trash support
-    gvfs.enable = true;
-  };
-
-  security = {
-    sudo.extraRules = [
-      {
-        users = [myUserName];
-        commands = [
-          {
-            command = "ALL";
-            options = ["NOPASSWD"];
-          }
-        ];
-      }
-    ];
-  };
-
-  time.timeZone = "Asia/Kolkata";
-  i18n = {
-    defaultLocale = "en_US.UTF-8";
-    extraLocaleSettings = {
-      LC_ADDRESS = "en_IN";
-      LC_IDENTIFICATION = "en_IN";
-      LC_MEASUREMENT = "en_IN";
-      LC_MONETARY = "en_IN";
-      LC_NAME = "en_IN";
-      LC_NUMERIC = "en_IN";
-      LC_PAPER = "en_IN";
-      LC_TELEPHONE = "en_IN";
-      LC_TIME = "en_IN";
-    };
-  };
-
-  console = {
-    earlySetup = true;
-    font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
-    packages = with pkgs; [terminus_font];
-    useXkbConfig = true;
-  };
-
-  programs = {
-    zsh.enable = true;
-
-    hyprland.enable = true;
-
-    steam = {
-      enable = true;
-      gamescopeSession.enable = true;
-      protontricks.enable = true;
-      platformOptimizations.enable = true;
-    };
-
-    nh = {
-      enable = true;
-      flake = "${home myUserName}/nix";
-    };
-
-    nix-ld.enable = true;
-  };
-
-  users.users = {
-    root = {
-      hashedPasswordFile = config.sops.secrets.root_pass.path;
-    };
-    ${myUserName} = {
-      isNormalUser = true;
-      description = myName;
-      shell = pkgs.zsh;
-      hashedPasswordFile = config.sops.secrets.user_pass.path;
-      extraGroups = ["wheel" "libvirtd" "input"];
-    };
-  };
-
-  home-manager = {
-    backupFileExtension = "bak";
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    extraSpecialArgs = {
+    home-manager = {
+      backupFileExtension = "bak";
+      useGlobalPkgs = true;
+      useUserPackages = true;
+      extraSpecialArgs = {
       inherit inputs nurNoPkgs;
-      inherit pcName myUserName myName matrixId mailId;
+      inherit pcName myUserName mail;
+      };
+      users.${myUserName} = import ../home;
     };
-    users.${myUserName} = import ../home;
+
+    nixpkgs.config = import ../home/nixpkgs.nix;
+
+    system.stateVersion = "24.05";
   };
-
-  nixpkgs.config = import ../home/nixpkgs.nix;
-
-  # NOTE: virt-manager setup
-  # virtualisation.libvirtd.enable = true;
-  # programs.virt-manager.enable = true;
-
-  system.stateVersion = "24.11";
 }

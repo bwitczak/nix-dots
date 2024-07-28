@@ -1,9 +1,10 @@
 {
   pkgs,
-  matrixId,
+  config,
   ...
 }: {
   programs = {
+   home-manager.enable = true;
     btop = {
       enable = true;
       settings = {
@@ -12,8 +13,6 @@
         rounded_corners = false;
       };
     };
-
-    home-manager.enable = true;
 
     less = {
       enable = true;
@@ -26,8 +25,8 @@
     direnv = {
       enable = true;
       enableZshIntegration = true;
-      silent = true;
       nix-direnv.enable = true;
+      silent = true;
     };
 
     zoxide = {
@@ -48,60 +47,6 @@
     fzf = {
       enable = true;
       enableZshIntegration = true;
-    };
-
-    iamb = {
-      enable = true;
-      settings = {
-        profiles.main = {
-          user_id = matrixId;
-          settings = {
-            image_preview = {
-              protocol.type = "sixel";
-              size = {
-                height = 10;
-                width = 30;
-              };
-            };
-            users = {
-              ${matrixId} = {
-                name = "thou thyself";
-                color = "yellow";
-              };
-            };
-            message_user_color = false;
-            notifications.enabled = true;
-            open_command = ["xdg-open"];
-            user_gutter_width = 20;
-            username_display = "displayname";
-          };
-          # NOTE: <S-Tab> does not work
-          macros = {
-            "normal|visual" = {
-              "Q" = ":qa<CR>";
-              "s" = "<C-W>m";
-              "<C-o>" = ":open<CR>";
-              "r" = ":react ";
-              "e" = ":edit<CR>";
-              "E" = ":reply<CR>";
-              "<Esc>" = ":cancel<CR>y";
-              "z" = "<C-W>z";
-              "t" = ":redact<CR>";
-              "<C-N>" = ":tabn<CR>";
-              "<C-P>" = ":tabp<CR>";
-            };
-          };
-          layout = {
-            style = "config";
-            tabs = [
-              {window = "!JWluPDcFzVMlxykpoI:matrix.org";}
-              {window = "#gen-ani-cli:matrix.org";}
-              {window = "@mrfluffy:mrfluffy.xyz";}
-              {window = "@nannk:synapse.nannk.xyz";}
-            ];
-          };
-        };
-      };
     };
 
     yazi = {
@@ -145,5 +90,202 @@
         };
       };
     };
+
+    zellij = {
+      enable = true;
+    };
   };
+
+  xdg.configFile."zellij/config.kdl".text = with config.lib.stylix.colors.withHashtag; ''
+    // If you'd like to override the default keybindings completely, be sure to change "keybinds" to "keybinds clear-defaults=true"
+    keybinds clear-defaults=true {
+        normal {
+            // uncomment this and adjust key if using copy_on_select=false
+            bind "Alt c" { Copy; }
+        }
+        locked {
+            bind "Ctrl g" { SwitchToMode "Normal"; }
+        }
+        resize {
+            bind "Ctrl n" { SwitchToMode "Normal"; }
+            bind "h" "Left" { Resize "Increase Left"; }
+            bind "j" "Down" { Resize "Increase Down"; }
+            bind "k" "Up" { Resize "Increase Up"; }
+            bind "l" "Right" { Resize "Increase Right"; }
+            bind "H" { Resize "Decrease Left"; }
+            bind "J" { Resize "Decrease Down"; }
+            bind "K" { Resize "Decrease Up"; }
+            bind "L" { Resize "Decrease Right"; }
+            bind "=" "+" { Resize "Increase"; }
+            bind "-" { Resize "Decrease"; }
+        }
+        pane {
+            bind "Ctrl p" { SwitchToMode "Normal"; }
+            bind "h" "Left" { MoveFocus "Left"; }
+            bind "l" "Right" { MoveFocus "Right"; }
+            bind "j" "Down" { MoveFocus "Down"; }
+            bind "k" "Up" { MoveFocus "Up"; }
+            bind "p" { SwitchFocus; }
+            bind "n" { NewPane; SwitchToMode "Normal"; }
+            bind "d" { NewPane "Down"; SwitchToMode "Normal"; }
+            bind "r" { NewPane "Right"; SwitchToMode "Normal"; }
+            bind "x" { CloseFocus; SwitchToMode "Normal"; }
+            bind "f" { ToggleFocusFullscreen; SwitchToMode "Normal"; }
+            bind "z" { TogglePaneFrames; SwitchToMode "Normal"; }
+            bind "w" { ToggleFloatingPanes; SwitchToMode "Normal"; }
+            bind "e" { TogglePaneEmbedOrFloating; SwitchToMode "Normal"; }
+            bind "c" { SwitchToMode "RenamePane"; PaneNameInput 0;}
+        }
+        move {
+            bind "Ctrl h" { SwitchToMode "Normal"; }
+            bind "n" "Tab" { MovePane; }
+            bind "p" { MovePaneBackwards; }
+            bind "h" "Left" { MovePane "Left"; }
+            bind "j" "Down" { MovePane "Down"; }
+            bind "k" "Up" { MovePane "Up"; }
+            bind "l" "Right" { MovePane "Right"; }
+        }
+        tab {
+            bind "Ctrl t" { SwitchToMode "Normal"; }
+            bind "r" { SwitchToMode "RenameTab"; TabNameInput 0; }
+            bind "h" "Left" "Up" "k" { GoToPreviousTab; }
+            bind "l" "Right" "Down" "j" { GoToNextTab; }
+            bind "n" { NewTab; SwitchToMode "Normal"; }
+            bind "x" { CloseTab; SwitchToMode "Normal"; }
+            bind "s" { ToggleActiveSyncTab; SwitchToMode "Normal"; }
+            bind "1" { GoToTab 1; SwitchToMode "Normal"; }
+            bind "2" { GoToTab 2; SwitchToMode "Normal"; }
+            bind "3" { GoToTab 3; SwitchToMode "Normal"; }
+            bind "4" { GoToTab 4; SwitchToMode "Normal"; }
+            bind "5" { GoToTab 5; SwitchToMode "Normal"; }
+            bind "6" { GoToTab 6; SwitchToMode "Normal"; }
+            bind "7" { GoToTab 7; SwitchToMode "Normal"; }
+            bind "8" { GoToTab 8; SwitchToMode "Normal"; }
+            bind "9" { GoToTab 9; SwitchToMode "Normal"; }
+            bind "Tab" { ToggleTab; }
+        }
+        scroll {
+            bind "Ctrl s" { SwitchToMode "Normal"; }
+            bind "e" { EditScrollback; SwitchToMode "Normal"; }
+            bind "s" { SwitchToMode "EnterSearch"; SearchInput 0; }
+            bind "Ctrl c" { ScrollToBottom; SwitchToMode "Normal"; }
+            bind "j" "Down" { ScrollDown; }
+            bind "k" "Up" { ScrollUp; }
+            bind "Ctrl f" "PageDown" "Right" "l" { PageScrollDown; }
+            bind "Ctrl b" "PageUp" "Left" "h" { PageScrollUp; }
+            bind "d" { HalfPageScrollDown; }
+            bind "u" { HalfPageScrollUp; }
+            // uncomment this and adjust key if using copy_on_select=false
+            bind "Alt c" { Copy; }
+        }
+        search {
+            bind "Ctrl s" { SwitchToMode "Normal"; }
+            bind "Ctrl c" { ScrollToBottom; SwitchToMode "Normal"; }
+            bind "j" "Down" { ScrollDown; }
+            bind "k" "Up" { ScrollUp; }
+            bind "Ctrl f" "PageDown" "Right" "l" { PageScrollDown; }
+            bind "Ctrl b" "PageUp" "Left" "h" { PageScrollUp; }
+            bind "d" { HalfPageScrollDown; }
+            bind "u" { HalfPageScrollUp; }
+            bind "n" { Search "down"; }
+            bind "p" { Search "up"; }
+            bind "c" { SearchToggleOption "CaseSensitivity"; }
+            bind "w" { SearchToggleOption "Wrap"; }
+            bind "o" { SearchToggleOption "WholeWord"; }
+        }
+        entersearch {
+            bind "Ctrl c" "Esc" { SwitchToMode "Scroll"; }
+            bind "Enter" { SwitchToMode "Search"; }
+        }
+        renametab {
+            bind "Ctrl c" { SwitchToMode "Normal"; }
+            bind "Esc" { UndoRenameTab; SwitchToMode "Tab"; }
+        }
+        renamepane {
+            bind "Ctrl c" { SwitchToMode "Normal"; }
+            bind "Esc" { UndoRenamePane; SwitchToMode "Pane"; }
+        }
+        session {
+            bind "Ctrl o" { SwitchToMode "Normal"; }
+            bind "Ctrl s" { SwitchToMode "Scroll"; }
+            bind "d" { Detach; }
+        }
+        shared_except "locked" {
+            bind "Ctrl g" { SwitchToMode "Locked"; }
+            bind "Ctrl q" { Quit; }
+            bind "Alt n" { NewPane; }
+            bind "Alt h" "Alt Left" { MoveFocusOrTab "Left"; }
+            bind "Alt l" "Alt Right" { MoveFocusOrTab "Right"; }
+            bind "Alt j" "Alt Down" { MoveFocus "Down"; }
+            bind "Alt k" "Alt Up" { MoveFocus "Up"; }
+            bind "Alt =" "Alt +" { Resize "Increase"; }
+            bind "Alt -" { Resize "Decrease"; }
+            bind "Alt [" { PreviousSwapLayout; }
+            bind "Alt ]" { NextSwapLayout; }
+        }
+        shared_except "normal" "locked" {
+            bind "Enter" "Esc" { SwitchToMode "Normal"; }
+        }
+        shared_except "pane" "locked" {
+            bind "Ctrl p" { SwitchToMode "Pane"; }
+        }
+        shared_except "resize" "locked" {
+            bind "Ctrl n" { SwitchToMode "Resize"; }
+        }
+        shared_except "scroll" "locked" {
+            bind "Ctrl s" { SwitchToMode "Scroll"; }
+        }
+        shared_except "session" "locked" {
+            bind "Ctrl o" { SwitchToMode "Session"; }
+        }
+        shared_except "tab" "locked" {
+            bind "Ctrl t" { SwitchToMode "Tab"; }
+        }
+        shared_except "move" "locked" {
+            bind "Ctrl h" { SwitchToMode "Move"; }
+        }
+    }
+
+    plugins {
+        tab-bar { path "tab-bar"; }
+        status-bar { path "status-bar"; }
+        strider { path "strider"; }
+        compact-bar { path "compact-bar"; }
+    }
+
+    // Define color themes for Zellij
+    // For more examples, see: https://github.com/zellij-org/zellij/tree/main/example/themes
+    // Once these themes are defined, one of them should to be selected in the "theme" section of this file
+    //
+    themes {
+      oxocarbon {
+          bg "${base01}"
+          fg "${base08}"
+          red "${base0A}"
+          green "${base0D}"
+          blue "${base0B}"
+          yellow "${base07}"
+          magenta "${base09}"
+          orange "${base0A}"
+          cyan "${base0F}"
+          black "${base01}"
+          white "${base09}"
+      }
+    }
+
+    // Choose the theme that is specified in the themes section.
+    // Default: default
+    //
+    theme "oxocarbon"
+
+    // Enable or disable automatic copy (and clear) of selection when releasing mouse
+    // Default: true
+    //
+    copy_on_select false
+
+    // Path to the default editor to use to edit pane scrollbuffer
+    // Default: $EDITOR or $VISUAL
+    //
+    // scrollback_editor "/usr/bin/vim"
+    '';
 }
