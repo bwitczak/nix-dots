@@ -28,7 +28,7 @@
     nix-init
     nurl
     nvd
-    qalculate-qt
+    # qalculate-qt
     nautilus
     libnotify
     gtk3

@@ -75,9 +75,9 @@ in {
         "noanim, selection"
       ];
       windowrulev2 = [
-      "float, class:io.github.Qalculate.qalculate-qt"
-      "size 70% 55%, class:io.github.Qalculate.qalculate-qt"
-      "center, class:io.github.Qalculate.qalculate-qt"
+      # "float, class:io.github.Qalculate.qalculate-qt"
+      # "size 70% 55%, class:io.github.Qalculate.qalculate-qt"
+      # "center, class:io.github.Qalculate.qalculate-qt"
       "float, title:quick"
       "size 80% 75%, title:quick"
       "center, title:quick"
@@ -187,7 +187,7 @@ in {
           "$mod1, Print, exec, grimblast --notify copy screen"
           "$mod2, f, exec, firefox"
           "$mod1, return, exec, alacritty"
-          "$mod1, r, exec, pkill qalculate-qt || qalculate-qt"
+          # "$mod1, r, exec, pkill qalculate-qt || qalculate-qt"
           "$mod1, comma, exec, pkill btop || btop"
           "$mod2, v, exec, neovide"
           "$mod2, i, exec, $setwall"

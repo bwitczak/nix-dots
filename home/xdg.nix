@@ -54,7 +54,7 @@
     userDirs = {
       enable = true;
       createDirectories = true;
-      download = "${config.home.homeDirectory}/Download";
+      download = "${config.home.homeDirectory}/Downloads";
       documents = "${config.home.homeDirectory}/dl/Documents";
       desktop = "${config.home.homeDirectory}/dl/Desktop";
       videos = "${config.home.homeDirectory}/dl/Videos";
